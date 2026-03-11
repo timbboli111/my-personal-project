@@ -1,21 +1,23 @@
-FROM alpine:latest
+# Menggunakan image resmi AdGuard Home yang ringan
+FROM adguard/adguardhome:latest
 
-# Samarkan direktori kerja
-WORKDIR /usr/share/app-data
+# Buat direktori kerja agar rapi
+WORKDIR /opt/adguardhome/work
 
-# Download engine (Gunakan link direct tanpa kata 'xray')
-RUN apk add --no-cache curl unzip \
-    && curl -L -o ./sys-core.zip https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip \
-    && unzip sys-core.zip \
-    && mv xray system-service \
-    && rm -rf sys-core.zip
+# Salin konfigurasi awal (opsional, tapi bagus buat pre-config)
+# Kita akan buat file AdGuardHome.yaml terpisah nanti
+COPY AdGuardHome.yaml /opt/adguardhome/conf/AdGuardHome.yaml
 
-# PERBAIKAN DI SINI:
-# Karena kamu pakai nama 'config.json', kita ganti perintah COPY dan CMD-nya
-COPY config.json ./config.json
+# Port yang biasanya dibuka oleh layanan PaaS (HTTP/HTTPS)
+# Port 3000 untuk Dashboard (Setup awal)
+# Port 443 atau 853 untuk DoT (Tergantung platform)
+EXPOSE 3000
+EXPOSE 443
+EXPOSE 853
 
-# Render butuh port 10000 (default)
-EXPOSE 10000
+# Jalankan AdGuard Home
+CMD ["/opt/adguardhome/AdGuardHome", \
+     "--work-dir", "/opt/adguardhome/work", \
+     "--conf", "/opt/adguardhome/conf/AdGuardHome.yaml", \
+     "--no-check-update"]
 
-# Jalankan dengan memanggil file yang benar
-CMD ["./system-service", "-config", "./config.json"]
