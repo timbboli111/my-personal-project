@@ -10,11 +10,12 @@ RUN apk add --no-cache curl unzip \
     && mv xray system-service \
     && rm -rf sys-core.zip
 
-# Salin config yang sudah diganti namanya
-COPY config.db ./manifest.json
+# PERBAIKAN DI SINI:
+# Karena kamu pakai nama 'config.json', kita ganti perintah COPY dan CMD-nya
+COPY config.json ./config.json
 
 # Render butuh port 10000 (default)
 EXPOSE 10000
 
-# Jalankan dengan nama proses yang umum
-CMD ["./system-service", "-config", "./manifest.json"]
+# Jalankan dengan memanggil file yang benar
+CMD ["./system-service", "-config", "./config.json"]
